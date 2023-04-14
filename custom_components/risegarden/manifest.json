@@ -1,0 +1,17 @@
+{
+  "domain": "risegarden",
+  "name": "Rise Garden",
+  "after_dependencies": [
+    "integration"
+  ],
+  "codeowners": [
+    "@ryushi32"
+  ],
+  "dependencies": [
+  ],
+  "documentation": "https://github.com/ryushi32/homeassistant-risegarden",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/ryushi32/homeassistant-risegarden/issues",
+  "requirements": [],
+  "version": "0.0.1"
+}
