@@ -1,3 +1,12 @@
+"""Test configuration to inject local HA stubs into sys.path."""
+import os
+import sys
+
+
+HERE = os.path.dirname(__file__)
+STUBS = os.path.join(HERE, "_stubs")
+if STUBS not in sys.path:
+    sys.path.insert(0, STUBS)
 import sys
 from pathlib import Path
 

@@ -3,7 +3,6 @@ class DataUpdateCoordinator:
         self.data = None
 
     def async_add_listener(self, _cb):
-        # no-op for tests
         pass
 
 
