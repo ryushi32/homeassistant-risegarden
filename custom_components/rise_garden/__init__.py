@@ -48,11 +48,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 		"session": session,
 	}
 
-	# forward setup of platforms
-	for platform in PLATFORMS:
-		hass.async_create_task(
-			hass.config_entries.async_forward_entry_setup(entry, platform)
-		)
+	# forward setup of platforms using the batch API
+	# async_forward_entry_setups accepts a list of platforms
+	await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
 	return True
 

@@ -1,5 +1,5 @@
 {
-  "domain": "risegarden",
+  "domain": "rise_garden",
   "name": "Rise Garden",
   "config_flow": true,
   "after_dependencies": [
@@ -14,5 +14,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/ryushi32/homeassistant-risegarden/issues",
   "requirements": [],
-  "version": "0.0.1"
+  "version": "0.0.2"
 }
