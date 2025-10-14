@@ -1,17 +1,46 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rise Garden logo">
-  <rect width="100%" height="100%" rx="20" fill="#E8F6EA" />
-  <!-- Sun -->
-  <circle cx="196" cy="60" r="28" fill="#FFD166" />
-  <!-- Soil -->
-  <rect x="16" y="188" width="224" height="40" rx="8" fill="#6B4E31" />
-  <!-- Plant (three leaves) -->
-  <g transform="translate(128,150)">
-    <path d="M0 0 C -18 -22 -38 -48 -18 -72 C -6 -86 8 -84 18 -70 C 30 -54 28 -28 10 -10 C -2 0 0 0 0 0 Z" fill="#55A630" transform="rotate(-20) translate(-20,10)"/>
-    <path d="M0 0 C 18 -22 38 -48 18 -72 C 6 -86 -8 -84 -18 -70 C -30 -54 -28 -28 -10 -10 C 2 0 0 0 0 0 Z" fill="#2F8F2F" transform="rotate(20) translate(20,10)"/>
-    <path d="M0 0 C -8 -18 8 -44 2 -66 C 0 -74 10 -76 14 -68 C 22 -52 10 -28 2 -12 C -2 -4 0 0 0 0 Z" fill="#3FA34D" transform="translate(-2,-10)"/>
-    <rect x="-6" y="0" width="12" height="48" rx="4" fill="#2E7D32" />
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rise Garden hydroponics logo">
+  <rect width="100%" height="100%" rx="20" fill="#F3FBF6" />
+
+  <!-- Overhead grow light -->
+  <g transform="translate(0,10)">
+    <rect x="28" y="20" width="200" height="22" rx="6" fill="#283593" />
+    <rect x="44" y="44" width="168" height="6" rx="3" fill="#1E88E5" opacity="0.9" />
+    <!-- light rays -->
+    <g fill="#B3E5FC" opacity="0.65">
+      <rect x="48" y="64" width="6" height="40" rx="2" />
+      <rect x="80" y="64" width="6" height="40" rx="2" />
+      <rect x="112" y="64" width="6" height="40" rx="2" />
+      <rect x="144" y="64" width="6" height="40" rx="2" />
+      <rect x="176" y="64" width="6" height="40" rx="2" />
+    </g>
   </g>
-  <!-- Water droplet accent -->
-  <path d="M56 92 C68 74 84 64 96 78 C108 92 96 110 80 116 C64 122 46 110 56 92 Z" fill="#4FC3F7" opacity="0.95" />
+
+  <!-- Hydroponic tray and reservoir -->
+  <g transform="translate(16,120)">
+    <!-- Tray top -->
+    <rect x="0" y="0" width="224" height="48" rx="8" fill="#E6F4EA" stroke="#BEE3C8" stroke-width="2" />
+    <!-- Tray holes (netpots) -->
+    <g fill="#AEE0AA">
+      <circle cx="48" cy="24" r="8" />
+      <circle cx="112" cy="24" r="8" />
+      <circle cx="176" cy="24" r="8" />
+    </g>
+    <!-- Reservoir under tray -->
+    <rect x="12" y="56" width="200" height="32" rx="6" fill="#D0EAF0" stroke="#9FC9D6" stroke-width="2" />
+    <!-- small pump indicator -->
+    <circle cx="36" cy="72" r="6" fill="#1976D2" />
+  </g>
+
+  <!-- Plant emerging from center netpot -->
+  <g transform="translate(112,136)">
+    <rect x="-10" y="6" width="20" height="20" rx="4" fill="#CFF0D0" />
+    <path d="M0 6 C -6 -6 -18 -28 -6 -44 C 0 -54 8 -52 16 -42 C 26 -28 18 -8 4 2 C 0 6 0 6 0 6 Z" fill="#2E7D32" />
+    <path d="M0 6 C 6 -6 18 -28 6 -44 C 0 -54 -8 -52 -16 -42 C -26 -28 -18 -8 -4 2 C 0 6 0 6 0 6 Z" fill="#4CAF50" opacity="0.95" />
+    <rect x="-4" y="6" width="8" height="28" rx="3" fill="#1B5E20" />
+  </g>
+
+  <!-- Brand text small -->
+  <text x="128" y="232" font-family="Verdana, Arial, sans-serif" font-size="14" fill="#2E7D32" text-anchor="middle">Rise Garden</text>
 </svg>
