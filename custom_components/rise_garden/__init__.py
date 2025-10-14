@@ -42,6 +42,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 	# Fetch initial data
 	await coordinator.async_config_entry_first_refresh()
 
+	# Debug: log a summary of fetched data so we can verify what the coordinator returned
+	try:
+		data = coordinator.data or {}
+		devices = data.get("devices")
+		device_data = data.get("device_data")
+		_LOGGER.debug("Rise Garden coordinator fetched devices: %s", devices)
+		_LOGGER.debug("Rise Garden coordinator fetched device_data keys: %s", list(device_data.keys()) if isinstance(device_data, dict) else device_data)
+	except Exception as err:
+		_LOGGER.debug("Error while logging coordinator data: %s", err)
+
 	hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
 		"client": client,
 		"coordinator": coordinator,
