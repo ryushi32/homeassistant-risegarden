@@ -1,0 +1,2 @@
+class ConfigEntry:
+    pass

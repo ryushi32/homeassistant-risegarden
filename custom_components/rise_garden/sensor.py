@@ -3,11 +3,16 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
+try:
+    # Newer Home Assistant exposes UnitOfTemperature in homeassistant.const
+    from homeassistant.const import UnitOfTemperature
+except Exception:
+    UnitOfTemperature = None
 
 from .const import DOMAIN
 
@@ -75,25 +80,60 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
                 if lamp_val is None and lamp_top is not None:
                     lamp_val = lamp_top
             if lamp_val is not None:
-                metric_path = "data.lamp_level" if isinstance(status.get("data"), dict) and status.get("data", {}).get("lamp_level") is not None else "lamp_level"
-                _LOGGER.debug("Adding light-level sensor for device %s (path=%s)", garden_id, metric_path)
-                entities.append(RiseGardenMetricSensor(coordinator, garden_id, name, device_info, "light", metric_path))
+                # Do not create a separate sensor for lamp_level — the light
+                # entity exposes the on/off and brightness (dimming) for the
+                # garden. Creating a sensor for the lamp_level causes duplicate
+                # unique_id conflicts and confuses the registry.
+                _LOGGER.debug(
+                    "Skipping creation of separate light-level sensor for device %s; light entity will represent lamp state/level",
+                    garden_id,
+                )
             else:
-                _LOGGER.debug("No lamp_level data for device %s (keys: %s)", garden_id, list(status.get("data", {}).keys()) if isinstance(status.get("data"), dict) else list(status.keys()) if isinstance(status, dict) else [])
+                _LOGGER.debug(
+                    "No lamp_level data for device %s (keys: %s)",
+                    garden_id,
+                    list(status.get("data", {}).keys()) if isinstance(status.get("data"), dict) else list(status.keys()) if isinstance(status, dict) else [],
+                )
 
-            # moisture - may be at several keys; try a few common names
-            moisture_val = None
+            # moisture sensor removed — the garden API does not provide a
+            # dedicated moisture sensor for all kits; we no longer create a
+            # separate moisture entity to avoid confusion.
+
+            # current water volume (gallons) — may be top-level or under data
+            water_val = None
             if isinstance(status, dict):
-                for key in ("moisture", "soil_moisture", "moisture_level", "water_level", "wp", "wpcur"):
-                    # check data node first, then top-level
-                    if (isinstance(status.get("data"), dict) and status.get("data", {}).get(key) is not None) or (status.get(key) is not None):
-                        moisture_val = key
-                        break
-            if moisture_val:
-                _LOGGER.debug("Adding moisture sensor for device %s using key %s", garden_id, moisture_val)
-                entities.append(RiseGardenMetricSensor(coordinator, garden_id, name, device_info, "moisture", f"data.{moisture_val}"))
+                # check data node first, then top-level
+                if isinstance(status.get("data"), dict) and status.get("data", {}).get("current_water_volume_gallons") is not None:
+                    water_val = "data.current_water_volume_gallons"
+                elif status.get("current_water_volume_gallons") is not None:
+                    water_val = "current_water_volume_gallons"
+            if water_val:
+                _LOGGER.debug("Adding water-volume sensor for device %s (path=%s)", garden_id, water_val)
+                entities.append(RiseGardenMetricSensor(coordinator, garden_id, name, device_info, "water_volume", water_val))
             else:
-                _LOGGER.debug("No moisture keys found for device %s (checked keys)", garden_id)
+                _LOGGER.debug("No current_water_volume_gallons key for device %s", garden_id)
+
+            # firmware version and wifi info (wifi_signal_strength, wifi_rssi)
+            # firmware may be numeric or string; wifi_signal_strength is a human
+            # readable string (e.g. "Very Good"); wifi_rssi is a numeric dBm value.
+            if isinstance(status, dict):
+                # firmware
+                if (isinstance(status.get("data"), dict) and status.get("data", {}).get("firmware") is not None) or (status.get("firmware") is not None):
+                    metric_path = "data.firmware" if isinstance(status.get("data"), dict) and status.get("data", {}).get("firmware") is not None else "firmware"
+                    _LOGGER.debug("Adding firmware sensor for device %s (path=%s)", garden_id, metric_path)
+                    entities.append(RiseGardenMetricSensor(coordinator, garden_id, name, device_info, "firmware", metric_path))
+
+                # wifi_signal_strength (string)
+                if (isinstance(status.get("data"), dict) and status.get("data", {}).get("wifi_signal_strength") is not None) or (status.get("wifi_signal_strength") is not None):
+                    metric_path = "data.wifi_signal_strength" if isinstance(status.get("data"), dict) and status.get("data", {}).get("wifi_signal_strength") is not None else "wifi_signal_strength"
+                    _LOGGER.debug("Adding wifi_signal_strength sensor for device %s (path=%s)", garden_id, metric_path)
+                    entities.append(RiseGardenMetricSensor(coordinator, garden_id, name, device_info, "wifi_signal_strength", metric_path))
+
+                # wifi_rssi (numeric dBm)
+                if (isinstance(status.get("data"), dict) and status.get("data", {}).get("wifi_rssi") is not None) or (status.get("wifi_rssi") is not None):
+                    metric_path = "data.wifi_rssi" if isinstance(status.get("data"), dict) and status.get("data", {}).get("wifi_rssi") is not None else "wifi_rssi"
+                    _LOGGER.debug("Adding wifi_rssi sensor for device %s (path=%s)", garden_id, metric_path)
+                    entities.append(RiseGardenMetricSensor(coordinator, garden_id, name, device_info, "wifi_rssi", metric_path))
 
         return entities
 
@@ -130,26 +170,57 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
         self._garden_id = garden_id
         self._metric = metric
         self._metric_path = metric_path.split(".")
-        self._attr_name = f"{garden_name} {metric.capitalize()}"
+        # Make metric names human-friendly (e.g. 'water_volume' -> 'Water Volume')
+        self._attr_name = f"{garden_name} {metric.replace('_', ' ').title()}"
         self._device_info = device_info
 
         # sensible defaults; Home Assistant will accept None if unknown
         if metric == "temperature":
-            self._attr_native_unit_of_measurement = "°C"
-            self._attr_device_class = "temperature"
-            self._attr_state_class = "measurement"
+            # Do not hard-code the unit here; report the unit dynamically
+            # via native_unit_of_measurement so the sensor respects the
+            # Home Assistant unit system (C/F). We'll convert the value in
+            # native_value when needed.
+            self._attr_device_class = SensorDeviceClass.TEMPERATURE
+            self._attr_state_class = SensorStateClass.MEASUREMENT
         elif metric == "light":
             self._attr_native_unit_of_measurement = "%"
-        elif metric == "moisture":
-            self._attr_native_unit_of_measurement = "%"
+        elif metric == "water_volume":
+            self._attr_native_unit_of_measurement = "gal"
+            # Make water volume graphable as a measurement
+            self._attr_state_class = SensorStateClass.MEASUREMENT
+        elif metric == "wifi_rssi":
+            # RSSI in dBm
+            self._attr_native_unit_of_measurement = "dBm"
+            self._attr_device_class = SensorDeviceClass.SIGNAL_STRENGTH
+        elif metric == "firmware":
+            # firmware version, leave as plain value (no unit)
+            pass
+        elif metric == "wifi_signal_strength":
+            # human-readable string, leave as plain value
+            pass
 
     @property
     def device_info(self) -> DeviceInfo:
         return self._device_info
 
     @property
+    def native_unit_of_measurement(self) -> str | None:
+        """Return the unit of measurement for this sensor.
+
+        For temperature sensors, return Home Assistant's configured unit so
+        the UI shows values in the user's preferred units (°C or °F).
+        """
+        if self._metric == "temperature":
+            # hass is available after entity is added
+            if self.hass is None:
+                return "°C"
+            return self.hass.config.units.temperature_unit
+        return getattr(self, "_attr_native_unit_of_measurement", None)
+
+    @property
     def unique_id(self) -> str:
-        return f"{self._garden_id}_{self._metric}"
+        # Namespace metric sensors to avoid colliding with other platform IDs
+        return f"{self._garden_id}_metric_{self._metric}"
 
     @property
     def native_value(self) -> Any:
@@ -172,4 +243,23 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
             node = node.get(key)
             if node is None:
                 return None
+        # If this is a temperature metric, convert to the configured unit if necessary.
+        if self._metric == "temperature":
+            try:
+                # assume API provides Celsius values
+                c = float(node)
+                # if HA is configured for Fahrenheit, convert
+                # Prefer the UnitOfTemperature enum when available, fall back to
+                # the raw unit string (°F) for older HA versions.
+                temp_unit = getattr(self.hass.config.units, "temperature_unit", None) if self.hass else None
+                if UnitOfTemperature is not None:
+                    target_f = temp_unit == UnitOfTemperature.FAHRENHEIT
+                else:
+                    target_f = temp_unit == "°F"
+                if target_f:
+                    return round((c * 9.0 / 5.0) + 32.0, 1)
+                return round(c, 1)
+            except Exception:
+                return node
+
         return node

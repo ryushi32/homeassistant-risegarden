@@ -88,6 +88,16 @@ class RiseGardenLight(CoordinatorEntity, LightEntity):
         self._device_info = device_info
 
     @property
+    def color_mode(self) -> ColorMode:
+        """Report the current color mode (brightness-only)."""
+        return ColorMode.BRIGHTNESS
+
+    @property
+    def supported_color_modes(self) -> set[ColorMode]:
+        """Backward-compatible property returning the supported color modes."""
+        return {ColorMode.BRIGHTNESS}
+
+    @property
     def device_info(self) -> DeviceInfo:
         return self._device_info
 
@@ -99,9 +109,15 @@ class RiseGardenLight(CoordinatorEntity, LightEntity):
     def is_on(self) -> bool:
         device_data = self.coordinator.data.get("device_data", {}) if self.coordinator.data else {}
         status = device_data.get(self._garden_id) or device_data.get(str(self._garden_id)) or {}
-        lamp = status.get("data", {}).get("lamp_level")
+        lamp = None
+        if isinstance(status, dict):
+            # prefer nested data.lamp_level when present
+            lamp = status.get("data", {}).get("lamp_level") if isinstance(status.get("data"), dict) else None
+            lamp_top = status.get("lamp_level") or status.get("lampState") or status.get("lamp_state")
+            if lamp is None and lamp_top is not None:
+                lamp = lamp_top
         try:
-            return bool(lamp and int(lamp) > 0)
+            return bool(lamp is not None and int(lamp) > 0)
         except Exception:
             return False
 
@@ -109,7 +125,12 @@ class RiseGardenLight(CoordinatorEntity, LightEntity):
     def brightness(self) -> int | None:
         device_data = self.coordinator.data.get("device_data", {}) if self.coordinator.data else {}
         status = device_data.get(self._garden_id) or device_data.get(str(self._garden_id)) or {}
-        lamp = status.get("data", {}).get("lamp_level")
+        lamp = None
+        if isinstance(status, dict):
+            lamp = status.get("data", {}).get("lamp_level") if isinstance(status.get("data"), dict) else None
+            lamp_top = status.get("lamp_level") or status.get("lampState") or status.get("lamp_state")
+            if lamp is None and lamp_top is not None:
+                lamp = lamp_top
         try:
             if lamp is None:
                 return None
