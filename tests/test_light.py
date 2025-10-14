@@ -34,7 +34,6 @@ class _DummyColorMode:
 
 light_mod.ColorMode = _DummyColorMode
 sys.modules["homeassistant.components.light"] = light_mod
-sys.modules["homeassistant.components.light"] = light_mod
 
 config_entries_mod = types.ModuleType("homeassistant.config_entries")
 class _DummyConfigEntry:
