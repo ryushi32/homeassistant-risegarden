@@ -1,5 +1,9 @@
 # Rise Garden Home Assistant Integration
 
+> ⚠️ Work in progress
+>
+> This integration is still under active development. It may be incomplete, change frequently, or contain bugs. Use at your own risk and check the repository for the latest updates.
+
 This is a custom Home Assistant integration to connect Rise Gardens devices to Home Assistant using the Rise Garden cloud API.
 
 ## Features
