@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rise Garden logo">
+  <rect width="100%" height="100%" rx="20" fill="#E8F6EA" />
+  <!-- Sun -->
+  <circle cx="196" cy="60" r="28" fill="#FFD166" />
+  <!-- Soil -->
+  <rect x="16" y="188" width="224" height="40" rx="8" fill="#6B4E31" />
+  <!-- Plant (three leaves) -->
+  <g transform="translate(128,150)">
+    <path d="M0 0 C -18 -22 -38 -48 -18 -72 C -6 -86 8 -84 18 -70 C 30 -54 28 -28 10 -10 C -2 0 0 0 0 0 Z" fill="#55A630" transform="rotate(-20) translate(-20,10)"/>
+    <path d="M0 0 C 18 -22 38 -48 18 -72 C 6 -86 -8 -84 -18 -70 C -30 -54 -28 -28 -10 -10 C 2 0 0 0 0 0 Z" fill="#2F8F2F" transform="rotate(20) translate(20,10)"/>
+    <path d="M0 0 C -8 -18 8 -44 2 -66 C 0 -74 10 -76 14 -68 C 22 -52 10 -28 2 -12 C -2 -4 0 0 0 0 Z" fill="#3FA34D" transform="translate(-2,-10)"/>
+    <rect x="-6" y="0" width="12" height="48" rx="4" fill="#2E7D32" />
+  </g>
+  <!-- Water droplet accent -->
+  <path d="M56 92 C68 74 84 64 96 78 C108 92 96 110 80 116 C64 122 46 110 56 92 Z" fill="#4FC3F7" opacity="0.95" />
+</svg>
