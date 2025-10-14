@@ -1,5 +1,4 @@
 """Test configuration to inject local HA stubs into sys.path."""
-import os
 import sys
 from pathlib import Path
 
@@ -9,8 +8,6 @@ HERE = Path(__file__).parent
 STUBS = str(HERE / "_stubs")
 if STUBS not in sys.path:
     sys.path.insert(0, STUBS)
-import sys
-from pathlib import Path
 
 # Ensure repo root is on sys.path so tests can import custom_components
 ROOT = Path(__file__).resolve().parents[1]
