@@ -172,9 +172,9 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
 
         # sensible defaults; Home Assistant will accept None if unknown
         if metric == "temperature":
-            # Do not force a unit here; report the unit dynamically via
-            # native_unit_of_measurement so Home Assistant's unit system is
-            # respected. Convert values in native_value as necessary.
+            # Report device class and state class; do not force native unit
+            # here — native_unit_of_measurement returns the configured unit
+            # so the UI displays values in the user's preferred units.
             self._attr_device_class = SensorDeviceClass.TEMPERATURE
             self._attr_state_class = SensorStateClass.MEASUREMENT
         elif metric == "light":
@@ -240,11 +240,22 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
                 return None
         # If this is a temperature metric, convert to the configured unit if necessary.
         if self._metric == "temperature":
-
             try:
                 # assume API provides Celsius values
                 c = float(node)
             except Exception:
                 return node
+
+            # hass may be None before entity is added
+            temp_unit = getattr(self.hass.config.units, "temperature_unit", None) if self.hass else None
+            # Prefer the UnitOfTemperature enum when available
+            if UnitOfTemperature is not None:
+                target_f = temp_unit == UnitOfTemperature.FAHRENHEIT
+            else:
+                target_f = temp_unit == "°F"
+
+            if target_f:
+                return round((c * 9.0 / 5.0) + 32.0, 1)
+            return round(c, 1)
 
         return node
