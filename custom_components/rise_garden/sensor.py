@@ -259,7 +259,7 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
                 if target_f:
                     return round((c * 9.0 / 5.0) + 32.0, 1)
                 return round(c, 1)
-            except Exception:
+            except (ValueError, TypeError):
                 return node
 
         return node
