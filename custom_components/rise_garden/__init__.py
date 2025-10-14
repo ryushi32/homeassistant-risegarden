@@ -49,6 +49,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 		device_data = data.get("device_data")
 		_LOGGER.debug("Rise Garden coordinator fetched devices: %s", devices)
 		_LOGGER.debug("Rise Garden coordinator fetched device_data keys: %s", list(device_data.keys()) if isinstance(device_data, dict) else device_data)
+
+		# Per-device details (keys in status.data)
+		if isinstance(device_data, dict):
+			for dev_id, status in device_data.items():
+				try:
+					data_node = status.get("data") if isinstance(status, dict) else None
+					if isinstance(data_node, dict):
+						_LOGGER.debug("Device %s status keys: %s", dev_id, list(data_node.keys()))
+					else:
+						_LOGGER.debug("Device %s has non-dict data node: %s", dev_id, type(data_node))
+				except Exception as err:
+					_LOGGER.debug("Error logging device %s details: %s", dev_id, err)
 	except Exception as err:
 		_LOGGER.debug("Error while logging coordinator data: %s", err)
 
