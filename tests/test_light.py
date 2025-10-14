@@ -3,19 +3,18 @@ import sys
 from pathlib import Path
 import types
 
-# Load the light module directly from file to avoid importing Home Assistant packages
 ROOT = Path(__file__).resolve().parents[1]
-pkg_path = ROOT / "custom_components" / "risegarden"
+pkg_path = ROOT / "custom_components" / "rise_garden"
 light_path = pkg_path / "light.py"
 
-# Ensure a package module exists for 'risegarden' with proper __path__ so relative imports work
-pkg = types.ModuleType("risegarden")
+# Ensure a package module exists for 'rise_garden' with proper __path__ so relative imports work
+pkg = types.ModuleType("rise_garden")
 pkg.__path__ = [str(pkg_path)]
-sys.modules["risegarden"] = pkg
+sys.modules["rise_garden"] = pkg
 
-spec = importlib.util.spec_from_file_location("risegarden.light", str(light_path))
+spec = importlib.util.spec_from_file_location("rise_garden.light", str(light_path))
 light = importlib.util.module_from_spec(spec)
-sys.modules["risegarden.light"] = light
+sys.modules["rise_garden.light"] = light
 
 # Create minimal fake homeassistant package and submodules required by the module
 if "homeassistant" not in sys.modules:

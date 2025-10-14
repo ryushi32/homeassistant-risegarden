@@ -10,9 +10,9 @@ This is a custom Home Assistant integration to connect Rise Gardens devices to H
 
 ## Installation
 
-1. Copy the `risegarden` folder into your Home Assistant `custom_components` directory. The path should look like:
+1. Copy the `rise_garden` folder into your Home Assistant `custom_components` directory. The path should look like:
 
-   `config/custom_components/risegarden/`
+  `config/custom_components/rise_garden/`
 
 2. Restart Home Assistant.
 
@@ -44,7 +44,7 @@ The integration stores tokens returned by the API for polling. No additional con
 ## Troubleshooting
 
 - If entities don't appear after setup:
-  - Verify the integration is installed in `custom_components/risegarden` and Home Assistant was restarted.
+  - Verify the integration is installed in `custom_components/rise_garden` and Home Assistant was restarted.
   - Check the Home Assistant logs for errors: `Settings → System → Logs`.
 
 - Authentication failures:
@@ -60,7 +60,7 @@ The integration stores tokens returned by the API for polling. No additional con
 
 ## Developer notes
 
-- API endpoints and response parsing live in `custom_components/risegarden/api.py`.
+- API endpoints and response parsing live in `custom_components/rise_garden/api.py`.
 - The integration uses a `DataUpdateCoordinator` in `__init__.py` to poll device status and provide data to platforms.
 - Sensors are implemented in `sensor.py`. Light control (brightness) is implemented in `light.py` and maps HA brightness to the API's lamp level.
 

@@ -5,10 +5,10 @@ import pytest
 
 # Load the api module directly from file to avoid importing Home Assistant packages
 ROOT = Path(__file__).resolve().parents[1]
-api_path = ROOT / "custom_components" / "risegarden" / "api.py"
-spec = importlib.util.spec_from_file_location("risegarden.api", str(api_path))
+api_path = ROOT / "custom_components" / "rise_garden" / "api.py"
+spec = importlib.util.spec_from_file_location("rise_garden.api", str(api_path))
 api = importlib.util.module_from_spec(spec)
-sys.modules["risegarden.api"] = api
+sys.modules["rise_garden.api"] = api
 spec.loader.exec_module(api)
 
 RiseGardenClient = api.RiseGardenClient
