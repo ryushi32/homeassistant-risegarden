@@ -44,8 +44,10 @@ class RiseGardenClient:
         payload = {"email": self._email, "password": self._password}
         headers = {"Content-Type": "application/json"}
         try:
+            _LOGGER.debug("API login request to %s for %s", url, self._email)
             async with self._session.post(url, json=payload, headers=headers, timeout=30) as resp:
                 data = await resp.json()
+                _LOGGER.debug("API login response status=%s for %s, data=%s", resp.status, self._email, {k: v for k, v in (data or {}).items() if k != 'password'})
                 if resp.status != 200:
                     _LOGGER.error("Login failed: %s %s", resp.status, data)
                     return False
@@ -81,8 +83,10 @@ class RiseGardenClient:
             "Authorization": f"Bearer {self._access_token}",
         }
         try:
+            _LOGGER.debug("API refresh request to %s (refresh_token present=%s)", url, bool(self._refresh_token))
             async with self._session.post(url, json=payload, headers=headers, timeout=30) as resp:
                 data = await resp.json()
+                _LOGGER.debug("API refresh response status=%s, data_keys=%s", resp.status, list((data or {}).keys()))
                 if resp.status != 200:
                     return False
                 token = data.get("token")
@@ -119,8 +123,10 @@ class RiseGardenClient:
 
         url = f"{self._base}{path}"
         try:
+            _LOGGER.debug("API request %s %s (params=%s, json_body_keys=%s)", method.upper(), url, params, list((json_body or {}).keys()) if isinstance(json_body, dict) else None)
             async with self._session.request(method.upper(), url, headers=headers, params=params, json=json_body, timeout=30) as resp:
                 data = await resp.json()
+                _LOGGER.debug("API response %s %s status=%s data_keys=%s", method.upper(), url, resp.status, list((data or {}).keys()) if isinstance(data, dict) else type(data))
                 if resp.status != 200:
                     raise RiseGardenAPIError(f"API request failed for {path}: {resp.status} {data}")
                 return data
