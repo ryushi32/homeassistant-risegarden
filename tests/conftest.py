@@ -1,10 +1,12 @@
 """Test configuration to inject local HA stubs into sys.path."""
 import os
 import sys
+from pathlib import Path
 
 
-HERE = os.path.dirname(__file__)
-STUBS = os.path.join(HERE, "_stubs")
+# Add tests/_stubs to sys.path so pytest imports local HA stubs during tests.
+HERE = Path(__file__).parent
+STUBS = str(HERE / "_stubs")
 if STUBS not in sys.path:
     sys.path.insert(0, STUBS)
 import sys
