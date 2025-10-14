@@ -28,6 +28,11 @@ light_mod = types.ModuleType("homeassistant.components.light")
 class _DummyLightEntity:
     pass
 light_mod.LightEntity = _DummyLightEntity
+# Provide ColorMode used by the integration
+class _DummyColorMode:
+    BRIGHTNESS = "brightness"
+
+light_mod.ColorMode = _DummyColorMode
 sys.modules["homeassistant.components.light"] = light_mod
 
 config_entries_mod = types.ModuleType("homeassistant.config_entries")
@@ -44,6 +49,14 @@ sys.modules["homeassistant.core"] = core_mod
 
 helpers = types.ModuleType("homeassistant.helpers")
 sys.modules["homeassistant.helpers"] = helpers
+
+# Provide helpers.entity.DeviceInfo used by platforms
+entity_mod = types.ModuleType("homeassistant.helpers.entity")
+class _DummyDeviceInfo:
+    def __init__(self, *args, **kwargs):
+        pass
+entity_mod.DeviceInfo = _DummyDeviceInfo
+sys.modules["homeassistant.helpers.entity"] = entity_mod
 
 upd = types.ModuleType("homeassistant.helpers.update_coordinator")
 class _DummyCoordinatorEntity:
