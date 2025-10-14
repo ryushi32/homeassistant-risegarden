@@ -1,6 +1,7 @@
 {
   "domain": "risegarden",
   "name": "Rise Garden",
+  "config_flow": true,
   "after_dependencies": [
     "integration"
   ],
