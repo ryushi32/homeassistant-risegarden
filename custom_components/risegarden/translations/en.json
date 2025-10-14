@@ -1,0 +1,30 @@
+{
+  "title": "Rise Garden",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect your Rise Garden account",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "%s Temperature"
+      },
+      "light": {
+        "name": "%s Light Level"
+      },
+      "moisture": {
+        "name": "%s Moisture"
+      }
+    },
+    "light": {
+      "default_name": "%s Light"
+    }
+  }
+}
