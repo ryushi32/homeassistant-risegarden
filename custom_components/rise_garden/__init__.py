@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
-import aiohttp
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -14,7 +14,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-	session = aiohttp.ClientSession()
+	# Use Home Assistant's shared aiohttp session to avoid managing lifecycle
+	session = async_get_clientsession(hass)
 	client = RiseGardenClient(session, entry.data[CONF_EMAIL], entry.data[CONF_PASSWORD])
 
 	async def async_update_data():
@@ -50,8 +51,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 		update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
 	)
 
-	# Fetch initial data
-	await coordinator.async_config_entry_first_refresh()
+	# Fetch initial data (schedule refresh in background to avoid blocking HA startup)
+	hass.async_create_task(coordinator.async_config_entry_first_refresh())
 
 	# Debug: log a summary of fetched data so we can verify what the coordinator returned
 	try:
@@ -91,9 +92,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 	unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 	data = hass.data[DOMAIN].pop(entry.entry_id)
-	# close session
-	session = data.get("session")
-	if session and not session.closed:
-		await session.close()
+	# Don't close Home Assistant's shared session
 	return unload_ok
 
