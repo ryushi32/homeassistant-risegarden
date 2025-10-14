@@ -60,7 +60,7 @@ The integration stores tokens returned by the API for polling. No additional con
 
 ## Developer notes
 
-- API endpoints and response parsing live in `custom_components/risegarden/api.py`. The implementation was ported from a community Homebridge client.
+- API endpoints and response parsing live in `custom_components/risegarden/api.py`.
 - The integration uses a `DataUpdateCoordinator` in `__init__.py` to poll device status and provide data to platforms.
 - Sensors are implemented in `sensor.py`. Light control (brightness) is implemented in `light.py` and maps HA brightness to the API's lamp level.
 
