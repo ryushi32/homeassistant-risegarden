@@ -8,11 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
-try:
-    # Newer Home Assistant exposes UnitOfTemperature in homeassistant.const
-    from homeassistant.const import UnitOfTemperature
-except ImportError:
-    UnitOfTemperature = None
+from homeassistant.const import UnitOfTemperature
 
 from .const import DOMAIN
 
@@ -176,10 +172,9 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
 
         # sensible defaults; Home Assistant will accept None if unknown
         if metric == "temperature":
-            # Do not hard-code the unit here; report the unit dynamically
-            # via native_unit_of_measurement so the sensor respects the
-            # Home Assistant unit system (C/F). We'll convert the value in
-            # native_value when needed.
+            # Do not force a unit here; report the unit dynamically via
+            # native_unit_of_measurement so Home Assistant's unit system is
+            # respected. Convert values in native_value as necessary.
             self._attr_device_class = SensorDeviceClass.TEMPERATURE
             self._attr_state_class = SensorStateClass.MEASUREMENT
         elif metric == "light":
@@ -245,21 +240,11 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
                 return None
         # If this is a temperature metric, convert to the configured unit if necessary.
         if self._metric == "temperature":
+
             try:
                 # assume API provides Celsius values
                 c = float(node)
-                # if HA is configured for Fahrenheit, convert
-                # Prefer the UnitOfTemperature enum when available, fall back to
-                # the raw unit string (°F) for older HA versions.
-                temp_unit = getattr(self.hass.config.units, "temperature_unit", None) if self.hass else None
-                if UnitOfTemperature is not None:
-                    target_f = temp_unit == UnitOfTemperature.FAHRENHEIT
-                else:
-                    target_f = temp_unit == "°F"
-                if target_f:
-                    return round((c * 9.0 / 5.0) + 32.0, 1)
-                return round(c, 1)
-            except (ValueError, TypeError):
+            except Exception:
                 return node
 
         return node
