@@ -208,8 +208,15 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
         if self._metric == "temperature":
             # hass is available after entity is added
             if self.hass is None:
-                return "°C"
-            return self.hass.config.units.temperature_unit
+                # default to Celsius until hass is available
+                return UnitOfTemperature.CELSIUS if UnitOfTemperature is not None else "°C"
+
+            temp_unit = getattr(self.hass.config.units, "temperature_unit", None)
+            # If HA exposes an enum, return its value; otherwise coerce to str
+            try:
+                return temp_unit.value  # type: ignore
+            except Exception:
+                return str(temp_unit)
         return getattr(self, "_attr_native_unit_of_measurement", None)
 
     @property
@@ -248,11 +255,16 @@ class RiseGardenMetricSensor(CoordinatorEntity, SensorEntity):
 
             # hass may be None before entity is added
             temp_unit = getattr(self.hass.config.units, "temperature_unit", None) if self.hass else None
-            # Prefer the UnitOfTemperature enum when available
-            if UnitOfTemperature is not None:
-                target_f = temp_unit == UnitOfTemperature.FAHRENHEIT
-            else:
-                target_f = temp_unit == "°F"
+
+            # Detect Fahrenheit robustly whether HA returns an enum or a string
+            target_f = False
+            if temp_unit is not None:
+                if UnitOfTemperature is not None and isinstance(temp_unit, UnitOfTemperature):
+                    target_f = temp_unit == UnitOfTemperature.FAHRENHEIT
+                else:
+                    t = str(temp_unit).lower()
+                    # common representations: '°f', 'f', 'fahrenheit'
+                    target_f = t.startswith("°f") or t.startswith("f") or "fahren" in t
 
             if target_f:
                 return round((c * 9.0 / 5.0) + 32.0, 1)
