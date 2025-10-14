@@ -24,7 +24,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 			for d in devices:
 				device_id = d.get("id")
 				try:
-					device_data[device_id] = await client.get_device_data(device_id)
+					status = await client.get_device_data(device_id)
+					if status is None:
+						_LOGGER.debug("Device %s returned no status, normalizing to empty dict", device_id)
+						status = {}
+					device_data[device_id] = status
 				except RiseGardenAPIError as err:
 					_LOGGER.debug("Failed to get data for %s: %s", device_id, err)
 			return {"devices": devices, "device_data": device_data}
