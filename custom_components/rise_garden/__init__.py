@@ -28,6 +28,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 					if status is None:
 						_LOGGER.debug("Device %s returned no status, normalizing to empty dict", device_id)
 						status = {}
+					# Normalize status and ensure 'data' node is a dict
+					if status is None:
+						_LOGGER.debug("Device %s returned no status, normalizing to empty dict", device_id)
+						status = {}
+					elif isinstance(status, dict) and status.get("data") is None:
+						_LOGGER.debug("Device %s returned status with null 'data' node; normalizing to empty dict", device_id)
+						status["data"] = {}
 					device_data[device_id] = status
 				except RiseGardenAPIError as err:
 					_LOGGER.debug("Failed to get data for %s: %s", device_id, err)
