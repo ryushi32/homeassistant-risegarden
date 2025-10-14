@@ -1,5 +1,6 @@
 {
   "name": "Rise Garden",
   "render_readme": true,
-  "homeassistant": "2025.5.0"
+  "homeassistant": "2025.5.0",
+  "logo": "assets/logo.svg"
 }
