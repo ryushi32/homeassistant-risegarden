@@ -11,7 +11,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Coor
 try:
     # Newer Home Assistant exposes UnitOfTemperature in homeassistant.const
     from homeassistant.const import UnitOfTemperature
-except Exception:
+except ImportError:
     UnitOfTemperature = None
 
 from .const import DOMAIN
