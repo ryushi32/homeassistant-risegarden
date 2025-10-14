@@ -1,4 +1,4 @@
-DOMAIN = "risegarden"
+DOMAIN = "rise_garden"
 PLATFORMS = ["sensor", "light"]
 
 CONF_EMAIL = "email"
